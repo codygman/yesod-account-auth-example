@@ -1,0 +1,16 @@
+User
+    username Text
+    UniqueUsername username
+    password ByteString
+    emailAddress Text
+    verified Bool
+    verifyKey Text
+    resetPasswordKey Text
+    deriving Show Typeable
+Email
+    email Text
+    user UserId Maybe
+    verkey Text Maybe
+    UniqueEmail email
+
+ -- By default this file is used in Model.hs (which is imported by Foundation.hs)

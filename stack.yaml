@@ -1,0 +1,7 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+  - yesod-auth-account-1.4.1
+  - nonce-1.0.2
+resolver: lts-2.16

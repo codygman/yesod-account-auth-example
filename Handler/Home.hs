@@ -16,6 +16,7 @@ getHomeR = do
     (formWidget, formEnctype) <- generateFormPost sampleForm
     let submission = Nothing :: Maybe (FileInfo, Text)
         handlerName = "getHomeR" :: Text
+    muid <- maybeAuthId
     defaultLayout $ do
         aDomId <- newIdent
         setTitle "Welcome To Yesod!"
@@ -28,7 +29,7 @@ postHomeR = do
         submission = case result of
             FormSuccess res -> Just res
             _ -> Nothing
-
+    muid <- maybeAuthId
     defaultLayout $ do
         aDomId <- newIdent
         setTitle "Welcome To Yesod!"

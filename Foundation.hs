@@ -1,10 +1,14 @@
+{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE GADTs, MultiParamTypeClasses, TypeSynonymInstances #-}
 module Foundation where
 
 import Import.NoFoundation
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.BrowserId (authBrowserId)
+import Yesod.Auth
+import Yesod.Auth.Account
 import Yesod.Auth.Message   (AuthMessage (InvalidLogin))
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
@@ -127,12 +131,46 @@ instance YesodAuth App where
     redirectToReferer _ = True
 
     authenticate creds = runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
+        x <- getBy $ UniqueUsername $ credsIdent creds
         return $ case x of
             Just (Entity uid _) -> Authenticated uid
             Nothing -> UserError InvalidLogin
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authBrowserId def]
+    authPlugins _ = [accountPlugin]
 
     authHttpManager = getHttpManager
+
+instance YesodAuthPersist App
+
+instance YesodAuthAccount (AccountPersistDB App User) App where
+  runAccountDB = runAccountPersistDB
+
+instance AccountSendEmail App
+
+instance PersistUserCredentials User where
+   userUsernameF = UserUsername
+   userPasswordHashF = UserPassword
+   userEmailF = UserEmailAddress
+   userEmailVerifiedF = UserVerified
+   userEmailVerifyKeyF = UserVerifyKey
+   userResetPwdKeyF = UserResetPasswordKey
+   uniqueUsername = UniqueUsername
+
+   userCreate name email key pwd = User name pwd email False key ""
+
+-- This instance is required to use forms. You can modify renderMessage to
+-- achieve customized and internationalized form validation messages.
+instance RenderMessage App FormMessage where
+    renderMessage _ _ = defaultFormMessage
+
+unsafeHandler :: App -> Handler a -> IO a
+unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
+
+-- Note: Some functionality previously present in the scaffolding has been
+-- moved to documentation in the Wiki. Following are some hopefully helpful
+-- links:
+--
+-- https://github.com/yesodweb/yesod/wiki/Sending-email
+-- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
+-- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding

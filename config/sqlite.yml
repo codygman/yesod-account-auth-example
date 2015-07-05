@@ -1,20 +1,20 @@
 Default: &defaults
-  database: idk.sqlite3
+  database: yesod-auth-account-example.sqlite3
   poolsize: 10
 
 Development:
   <<: *defaults
 
 Testing:
-  database: idk_test.sqlite3
+  database: yesod-auth-account-example_test.sqlite3
   <<: *defaults
 
 Staging:
-  database: idk_staging.sqlite3
+  database: yesod-auth-account-example_staging.sqlite3
   poolsize: 100
   <<: *defaults
 
 Production:
-  database: idk_production.sqlite3
+  database: yesod-auth-account-example_production.sqlite3
   poolsize: 100
   <<: *defaults

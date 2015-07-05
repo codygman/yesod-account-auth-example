@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-import "idk" Application (develMain)
+import "yesod-auth-account-example" Application (develMain)
 import Prelude (IO)
 
 main :: IO ()
